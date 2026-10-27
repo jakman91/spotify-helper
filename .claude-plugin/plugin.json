@@ -1,9 +1,16 @@
 {
   "name": "spotify-helper",
   "version": "0.1.0",
-  "description": "Turn your Spotify Extended Streaming History into a listening dashboard, genre and mood tags, a cleaned-up Liked Songs, and playlists built from what you actually play.",
-  "author": { "name": "Jonathan Koch" },
+  "description": "Turn your Spotify Extended Streaming History into a listening dashboard, genre and mood tags, a cleaned-up Liked Songs, and playlists built from what you actually play. To begin, run the spotify-start skill; it guides you through the rest.",
+  "author": {
+    "name": "Jonathan Koch"
+  },
   "repository": "https://github.com/jakman91/spotify-helper",
   "license": "MIT",
-  "keywords": ["spotify", "playlists", "music", "dashboard"]
+  "keywords": [
+    "spotify",
+    "playlists",
+    "music",
+    "dashboard"
+  ]
 }

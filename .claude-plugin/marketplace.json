@@ -1,11 +1,13 @@
 {
   "name": "spotify-helper",
-  "owner": { "name": "Jonathan Koch" },
+  "owner": {
+    "name": "Jonathan Koch"
+  },
   "plugins": [
     {
       "name": "spotify-helper",
       "source": "./",
-      "description": "Spotify listening dashboard, genre and mood tags, Liked Songs cleanup, and playlists from your own history."
+      "description": "Spotify listening dashboard, genre and mood tags, Liked Songs cleanup, and playlists from your own history. To begin, run the spotify-start skill; it guides you through the rest."
     }
   ]
 }

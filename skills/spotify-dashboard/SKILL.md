@@ -1,6 +1,6 @@
 ---
 name: spotify-dashboard
-description: Build a personal Spotify listening dashboard (one HTML file) from an Extended Streaming History export. Use when someone has their Spotify export and wants to see their listening stats, top artists and songs by year, or habits, or wants to rebuild the dashboard after adding genres or moods.
+description: Build a personal Spotify listening dashboard (one HTML file) from an Extended Streaming History export. Use when someone has their Spotify export and wants to see their listening stats, top artists and songs by year, or habits, or wants to rebuild the dashboard after adding genres or moods. Usually reached from spotify-start; if someone is new or unsure where they are, run spotify-start first.
 ---
 
 # Spotify listening dashboard

@@ -1,9 +1,11 @@
 ---
 name: spotify-start
-description: Start or resume the Spotify helper. Use when someone wants to analyze their Spotify listening history, clean up Liked Songs, or build playlists from it, or asks "what's next" in that workflow. Checks progress, handles the export request and Spotify app setup, and routes to the other spotify-* skills.
+description: START HERE for the Spotify helper; the only skill a person needs to run. Starts or resumes the whole workflow. Use when someone wants to analyze their Spotify listening history, clean up Liked Songs, or build playlists from it, or asks "what's next" in that workflow. Checks progress, handles the export request and Spotify app setup, and routes to the other spotify-* skills.
 ---
 
 # Spotify helper: start here
+
+This is the entry point. A person only ever needs to run this skill; it routes them to the others when it is time.
 
 This walks someone through four stages, usually across a few sessions:
 

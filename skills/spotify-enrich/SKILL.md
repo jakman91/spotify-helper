@@ -1,6 +1,6 @@
 ---
 name: spotify-enrich
-description: Add genres and moods to someone's Spotify listening history. Use after the spotify-dashboard step, when they want genre or mood breakdowns, or before building genre or vibe playlists. Claude tags artists into the person's own genre buckets and pulls mood features from ReccoBeats.
+description: Add genres and moods to someone's Spotify listening history. Use after the spotify-dashboard step, when they want genre or mood breakdowns, or before building genre or vibe playlists. Claude tags artists into the person's own genre buckets and pulls mood features from ReccoBeats. Usually reached from spotify-start; if someone is new or unsure where they are, run spotify-start first.
 ---
 
 # Genres and moods
