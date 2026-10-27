@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Aggregate a Spotify Extended Streaming History export into dashboard datasets.
 
-Usage: python3 build_datasets.py <export_dir> <out_dir> [--tz America/Chicago]
+Usage: python3 build_datasets.py <export_dir> <out_dir> [--tz America/New_York]
 (--tz defaults to this computer's time zone)
 
 A "play" is a music stream of 30s or more (Spotify's own stream threshold).
