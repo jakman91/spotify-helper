@@ -1,0 +1,928 @@
+<style>
+#dash-root { --dash-gutter: 0; }
+.sp {
+  /* Layout: header + year filter, then four tabs of cards on a white "Spotify light" ground */
+  --sp-bg: #FFFFFF;
+  --sp-panel: #F6F8F6;
+  --sp-ink: #121212;
+  --sp-ink-2: #535A55;
+  --sp-line: #E3E7E4;
+  --sp-green: #1DB954;
+  --sp-green-ink: #0E7A36;
+  --sp-muted-mark: #D3D9D5;
+  --sp-display: 'Space Grotesk', 'IBM Plex Sans', system-ui, sans-serif;
+  --sp-body: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --sp-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  background: var(--sp-bg);
+  color: var(--sp-ink);
+  font-family: var(--sp-body);
+  font-size: 14px;
+  line-height: 1.45;
+  padding-block: 24px 40px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  border-radius: 12px;
+}
+.sp-wrap { max-width: 1200px; margin-inline: auto; display: grid; gap: 20px; }
+.sp-head { display: grid; gap: 6px; }
+.sp-eyebrow { font-family: var(--sp-mono); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--sp-green-ink); display: flex; align-items: center; gap: 8px; }
+.sp-eyebrow::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--sp-green); }
+.sp-title { font-family: var(--sp-display); font-weight: 700; font-size: clamp(26px, 4vw, 40px); line-height: 1.1; margin: 0; text-wrap: balance; letter-spacing: -0.01em; }
+.sp-take { color: var(--sp-ink-2); font-size: 15px; max-width: 70ch; margin: 0; }
+.sp-bar { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; justify-content: space-between; border-top: 1px solid var(--sp-line); border-bottom: 1px solid var(--sp-line); padding-block: 10px; }
+.sp-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+.sp-tab { font: 500 14px var(--sp-body); border: 1px solid var(--sp-line); background: var(--sp-bg); color: var(--sp-ink); border-radius: 999px; padding: 6px 14px; cursor: pointer; }
+.sp-tab[aria-selected="true"] { background: var(--sp-ink); color: var(--sp-bg); border-color: var(--sp-ink); }
+.sp-tab:focus-visible, .sp-btn:focus-visible, .sp select:focus-visible, .sp input:focus-visible { outline: 2px solid var(--sp-green); outline-offset: 2px; }
+.sp-range { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 13px; color: var(--sp-ink-2); }
+.sp select, .sp input[type=number], .sp input[type=search] { font: 14px var(--sp-body); color: var(--sp-ink); background: var(--sp-bg); border: 1px solid var(--sp-line); border-radius: 8px; padding: 5px 8px; }
+.sp input[type=search] { width: min(100%, 240px); }
+.sp input[type=number] { width: 72px; }
+.sp-btn { font: 500 13px var(--sp-body); border: 1px solid var(--sp-line); background: var(--sp-bg); color: var(--sp-ink); border-radius: 999px; padding: 5px 12px; cursor: pointer; }
+.sp-btn.sp-primary { background: var(--sp-green); border-color: var(--sp-green); color: #0B1F12; }
+.sp-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr)); gap: 12px; }
+.sp-kpi { background: var(--sp-panel); border-radius: 10px; padding: 14px 16px; display: grid; gap: 4px; min-width: 0; }
+.sp-kpi-label { font-size: 12px; color: var(--sp-ink-2); text-transform: uppercase; letter-spacing: .05em; }
+.sp-kpi-val { font-family: var(--sp-display); font-size: 28px; font-weight: 500; line-height: 1.15; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.sp-kpi-val.sp-small { font-size: 18px; }
+.sp-kpi-sub { font-size: 12px; color: var(--sp-ink-2); font-family: var(--sp-mono); }
+.sp-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 16px; }
+.sp-card { border: 1px solid var(--sp-line); border-radius: 12px; padding: 16px; display: grid; gap: 10px; align-content: start; min-width: 0; background: var(--sp-bg); }
+.sp-card.sp-wide { grid-column: 1 / -1; }
+.sp-card h2 { font-family: var(--sp-display); font-weight: 500; font-size: 18px; margin: 0; }
+.sp-note { font-size: 13px; color: var(--sp-ink-2); margin: 0; }
+.sp-chart { position: relative; min-height: 220px; }
+.sp-chart svg { display: block; overflow: visible; }
+.sp-chart text { fill: var(--sp-ink-2); font-family: var(--sp-mono); font-size: 11px; }
+.sp-tip { position: absolute; pointer-events: none; background: var(--sp-bg); border: 1px solid var(--sp-line); border-radius: 8px; box-shadow: 0 6px 18px rgba(18,18,18,.12); padding: 6px 10px; font-size: 12px; white-space: nowrap; z-index: 2; }
+.sp-tip b { font-weight: 600; }
+.sp-tip .sp-tip-h { color: var(--sp-ink-2); }
+.sp-eras { display: grid; gap: 2px; }
+.sp-era { display: grid; grid-template-columns: 52px 1fr; gap: 10px; padding: 6px 0; border-bottom: 1px solid var(--sp-line); align-items: baseline; }
+.sp-era-y { font-family: var(--sp-mono); color: var(--sp-green-ink); font-weight: 500; }
+.sp-era-a { display: flex; flex-wrap: wrap; gap: 4px 14px; min-width: 0; }
+.sp-era-a span { white-space: nowrap; }
+.sp-era-a small { color: var(--sp-ink-2); font-family: var(--sp-mono); font-size: 11px; margin-left: 4px; }
+.sp-tablebox { max-height: 560px; overflow: auto; border-top: 1px solid var(--sp-line); }
+.sp-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.sp-table th { position: sticky; top: 0; background: var(--sp-bg); text-align: left; font-weight: 500; color: var(--sp-ink-2); font-size: 12px; padding: 8px 8px; border-bottom: 1px solid var(--sp-line); white-space: nowrap; cursor: pointer; user-select: none; z-index: 1; }
+.sp-table th[aria-sort="descending"]::after { content: " ↓"; }
+.sp-table th[aria-sort="ascending"]::after { content: " ↑"; }
+.sp-table td { padding: 7px 8px; border-bottom: 1px solid var(--sp-line); vertical-align: top; }
+.sp-table td.sp-num, .sp-table th.sp-num { text-align: right; font-family: var(--sp-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.sp-table td.sp-rank { color: var(--sp-ink-2); font-family: var(--sp-mono); width: 2.5em; }
+.sp-table tbody tr:hover { background: var(--sp-panel); }
+.sp-table tr.sp-click { cursor: pointer; }
+.sp-cellbar { display: flex; align-items: center; gap: 8px; justify-content: flex-end; }
+.sp-cellbar i { display: block; height: 6px; border-radius: 3px; background: var(--sp-green); }
+.sp-sub { color: var(--sp-ink-2); }
+.sp-tools { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; }
+.sp-tools label { display: flex; gap: 6px; align-items: center; font-size: 13px; color: var(--sp-ink-2); }
+.sp-pill { display: inline-block; font-size: 11px; font-family: var(--sp-mono); padding: 1px 8px; border-radius: 999px; background: #E6F6EC; color: var(--sp-green-ink); }
+.sp-copybox { width: 100%; min-height: 80px; font: 12px var(--sp-mono); border: 1px solid var(--sp-line); border-radius: 8px; padding: 8px; color: var(--sp-ink); background: var(--sp-panel); }
+.sp-gap { background: #FFF8E6; border: 1px solid #F1DFB0; border-radius: 12px; padding: 12px 16px; font-size: 13px; color: #5B4A1A; }
+.sp-gap b { font-weight: 600; }
+.sp-mix { border-collapse: separate; border-spacing: 2px; font-size: 12px; }
+.sp-mix th { font-weight: 500; color: var(--sp-ink-2); font-family: var(--sp-mono); font-size: 11px; padding: 2px 4px; white-space: nowrap; }
+.sp-mix th.sp-gname { text-align: left; font-family: var(--sp-body); font-size: 12px; color: var(--sp-ink); cursor: pointer; position: sticky; left: 0; background: var(--sp-bg); }
+.sp-mix td { width: 34px; min-width: 30px; height: 24px; border-radius: 4px; text-align: center; font-family: var(--sp-mono); font-size: 10px; cursor: pointer; }
+.sp-mix tr.sp-on th.sp-gname { color: var(--sp-green-ink); font-weight: 600; }
+.sp-hbar { display: grid; gap: 6px; }
+.sp-hrow { display: grid; grid-template-columns: minmax(110px, 38%) 1fr auto; gap: 10px; align-items: center; cursor: pointer; border-radius: 6px; padding: 2px 4px; }
+.sp-hrow:hover { background: var(--sp-panel); }
+.sp-hrow span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sp-hrow i { display: block; height: 14px; border-radius: 4px; background: var(--sp-muted-mark); }
+.sp-hrow.sp-on i { background: var(--sp-green); }
+.sp-hrow.sp-on span:first-child { font-weight: 600; }
+.sp-hrow b { font-family: var(--sp-mono); font-weight: 400; font-size: 12px; color: var(--sp-ink-2); }
+.sp-mini { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; counter-reset: n; }
+.sp-mini li { display: grid; grid-template-columns: 22px 1fr auto; gap: 8px; padding: 5px 0; border-bottom: 1px solid var(--sp-line); align-items: baseline; }
+.sp-mini li::before { counter-increment: n; content: counter(n); color: var(--sp-ink-2); font-family: var(--sp-mono); font-size: 12px; }
+.sp-mini b { font-family: var(--sp-mono); font-weight: 400; font-size: 12px; color: var(--sp-ink-2); }
+.sp-hists { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 14px; }
+.sp-hist { position: relative; min-width: 0; }
+.sp-hist p { margin: 0 0 4px; font-size: 12px; color: var(--sp-ink-2); }
+.sp-hist p b { font-weight: 500; color: var(--sp-ink); }
+.sp-tag { display: inline-block; font-size: 11px; padding: 0 6px; border-radius: 999px; background: var(--sp-panel); color: var(--sp-ink-2); margin: 1px 3px 1px 0; white-space: nowrap; }
+.sp-section[hidden] { display: none !important; }
+.sp-legend { display: flex; gap: 12px; flex-wrap: wrap; font-size: 12px; color: var(--sp-ink-2); align-items: center; }
+.sp-legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; vertical-align: -1px; }
+[data-dash-source-state=refreshing] { opacity: .5; }
+@media (max-width: 640px) { .sp-hide-narrow { display: none; } }
+</style>
+
+<div class="sp">
+<div class="sp-wrap">
+  <header class="sp-head" id="top-of-page">
+    <div class="sp-eyebrow">Spotify listening history</div>
+    <h1 class="sp-title" id="sp-title" data-source="summary">Your Spotify</h1>
+    <p class="sp-take" id="sp-take" data-source="yearly artists tracks">—</p>
+  </header>
+
+  <div class="sp-bar">
+    <div class="sp-tabs" role="tablist">
+      <button class="sp-tab" role="tab" data-tab="overview" id="tab-overview">Overview</button>
+      <button class="sp-tab" role="tab" data-tab="genres" id="tab-genres">Genres</button>
+      <button class="sp-tab" role="tab" data-tab="moods" id="tab-moods">Moods</button>
+      <button class="sp-tab" role="tab" data-tab="top" id="tab-top">Top lists</button>
+      <button class="sp-tab" role="tab" data-tab="library" id="tab-library">Library builder</button>
+      <button class="sp-tab" role="tab" data-tab="habits" id="tab-habits">Habits</button>
+    </div>
+    <div class="sp-range">
+      <label for="sp-from">Years</label>
+      <select id="sp-from" aria-label="From year" data-source="yearly"></select>
+      <span>to</span>
+      <select id="sp-to" aria-label="To year" data-source="yearly"></select>
+      <button class="sp-btn" id="sp-reset" type="button">All years</button>
+      <label for="sp-genre" style="margin-left:6px">Genre</label>
+      <select id="sp-genre" aria-label="Genre" data-source="genre_years"></select>
+      <label for="sp-mood" style="margin-left:6px">Mood</label>
+      <select id="sp-mood" aria-label="Mood" data-source="moods"></select>
+    </div>
+  </div>
+
+  <!-- OVERVIEW -->
+  <section class="sp-section" id="overview">
+    <div style="display:grid;gap:16px">
+      <div class="sp-kpis">
+        <div class="sp-kpi"><span class="sp-kpi-label">Hours listened</span><span class="sp-kpi-val" id="k-hours" data-source="yearly">—</span><span class="sp-kpi-sub" id="k-hours-sub">—</span></div>
+        <div class="sp-kpi"><span class="sp-kpi-label">Plays</span><span class="sp-kpi-val" id="k-plays" data-source="yearly">—</span><span class="sp-kpi-sub">30s or more</span></div>
+        <div class="sp-kpi"><span class="sp-kpi-label">Top artist</span><span class="sp-kpi-val sp-small" id="k-artist" data-source="artists">—</span><span class="sp-kpi-sub" id="k-artist-sub">—</span></div>
+        <div class="sp-kpi"><span class="sp-kpi-label">Top song</span><span class="sp-kpi-val sp-small" id="k-song" data-source="tracks">—</span><span class="sp-kpi-sub" id="k-song-sub">—</span></div>
+        <div class="sp-kpi"><span class="sp-kpi-label">Biggest year</span><span class="sp-kpi-val" id="k-peak" data-source="yearly">—</span><span class="sp-kpi-sub" id="k-peak-sub">—</span></div>
+      </div>
+      <div class="sp-grid">
+        <div class="sp-card sp-wide" id="card-years">
+          <h2>Hours per year</h2>
+          <p class="sp-note">Selected years in green. Click a bar to focus on that year.</p>
+          <div class="sp-chart" id="ch-years" data-source="yearly"></div>
+        </div>
+        <div class="sp-card sp-wide" id="card-months">
+          <h2>Hours per month</h2>
+          <p class="sp-note" id="months-note">—</p>
+          <div class="sp-chart" id="ch-months" data-source="monthly"></div>
+        </div>
+        <div class="sp-card" id="card-eras">
+          <h2>Artist eras</h2>
+          <p class="sp-note">Your top three artists each year, by plays.</p>
+          <div class="sp-eras" id="eras" data-source="artists"></div>
+        </div>
+        <div class="sp-card" id="card-topart">
+          <h2>Top 15 artists</h2>
+          <p class="sp-note" id="topart-note">—</p>
+          <div class="sp-chart" id="ch-topart" data-source="artists" style="min-height:420px"></div>
+        </div>
+      </div>
+      <p class="sp-note" id="genre-src">Genres are hand-tagged by artist, since Spotify's API no longer returns genres to new apps. EDM is split by when a song peaked (2016 or earlier is the 2012–2016 era). Songs from untagged artists fall under Unsorted.</p>
+    </div>
+  </section>
+
+  <!-- GENRES -->
+  <section class="sp-section" id="genres" hidden>
+    <div class="sp-grid">
+      <div class="sp-card" id="card-ghours">
+        <h2>Hours by genre</h2>
+        <p class="sp-note" id="ghours-note">—</p>
+        <div class="sp-hbar" id="ghours" data-source="genre_years"></div>
+      </div>
+      <div class="sp-card" id="card-gfocus">
+        <h2 id="gfocus-title">Pick a genre</h2>
+        <p class="sp-note" id="gfocus-note">Click a genre on the left or in the grid below to see its top artists and songs.</p>
+        <div class="sp-grid" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))">
+          <div><p class="sp-note">Top artists</p><ol class="sp-mini" id="g-artists" data-source="artists"></ol></div>
+          <div><p class="sp-note">Top songs</p><ol class="sp-mini" id="g-songs" data-source="tracks"></ol></div>
+        </div>
+      </div>
+      <div class="sp-card sp-wide" id="card-gshare">
+        <h2 id="gshare-title">Share of your listening per year</h2>
+        <p class="sp-note" id="gshare-note">—</p>
+        <div class="sp-chart" id="ch-gshare" data-source="genre_years" style="min-height:200px"></div>
+      </div>
+      <div class="sp-card sp-wide" id="card-gmix">
+        <h2>Genre mix by year</h2>
+        <p class="sp-note">Each cell is that genre's share of the year's plays. Darker means a bigger share. Click a row to filter the whole dashboard.</p>
+        <div style="overflow-x:auto"><table class="sp-mix" id="gmix" data-source="genre_years"></table></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MOODS -->
+  <section class="sp-section" id="moods" hidden>
+    <div class="sp-grid">
+      <p class="sp-note sp-card sp-wide" id="mood-src" data-source="moods" style="border:0;padding:0">—</p>
+      <div class="sp-card" id="card-mcount">
+        <h2>Songs per mood</h2>
+        <p class="sp-note" id="mcount-note">—</p>
+        <div class="sp-hbar" id="mcount" data-source="moods"></div>
+      </div>
+      <div class="sp-card" id="card-scatter">
+        <h2>Energy vs. happiness</h2>
+        <p class="sp-note" id="scatter-note">Each dot is a song, sized by plays. Right is happier (valence), up is more energetic.</p>
+        <div class="sp-chart" id="ch-scatter" data-source="moods tracks" style="min-height:340px"></div>
+      </div>
+      <div class="sp-card sp-wide" id="card-mgrid">
+        <h2>Moods by genre</h2>
+        <p class="sp-note">Share of each genre's loved songs tagged with each mood. Click a cell to filter by both.</p>
+        <div style="overflow-x:auto"><table class="sp-mix" id="mgrid" data-source="moods tracks"></table></div>
+      </div>
+      <div class="sp-card sp-wide" id="card-hists">
+        <h2>Sound profile</h2>
+        <div class="sp-legend"><span><i style="background:#1DB954"></i><span id="hist-sel">Selected songs</span></span><span><i style="background:#D3D9D5"></i>All loved songs</span></div>
+        <div class="sp-hists" id="hists" data-source="moods"></div>
+      </div>
+      <div class="sp-card sp-wide" id="card-msongs">
+        <div class="sp-tools"><h2 style="flex:1" id="msongs-title">Songs</h2><input type="search" id="q-moods" placeholder="Search" aria-label="Search mood songs"></div>
+        <div class="sp-tablebox"><table class="sp-table" id="t-moods" data-source="tracks moods" data-row-key="id"><thead><tr>
+          <th scope="col">#</th><th scope="col" data-k="track" data-field="track">Song</th><th scope="col" data-k="artist" data-field="artist">Artist</th><th scope="col" class="sp-num" data-k="rp">Plays</th><th scope="col" data-k="moodsTxt">Moods</th><th scope="col" class="sp-num sp-hide-narrow" data-k="energy">Energy</th><th scope="col" class="sp-num sp-hide-narrow" data-k="valence">Valence</th><th scope="col" class="sp-num sp-hide-narrow" data-k="danceability">Dance</th><th scope="col" class="sp-num sp-hide-narrow" data-k="tempo">BPM</th><th scope="col" class="sp-hide-narrow" data-k="source">Source</th>
+        </tr></thead><tbody></tbody></table></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TOP LISTS -->
+  <section class="sp-section" id="top" hidden>
+    <div class="sp-grid">
+      <div class="sp-card sp-wide" id="card-artists">
+        <h2>Artists</h2>
+        <div class="sp-tools"><input type="search" id="q-artists" placeholder="Search artists" aria-label="Search artists"><span class="sp-note">Click an artist to see their songs.</span></div>
+        <div class="sp-tablebox"><table class="sp-table" id="t-artists" data-source="artists" data-row-key="artist"><thead><tr>
+          <th scope="col">#</th><th scope="col" data-k="artist" data-field="artist">Artist</th><th scope="col" class="sp-num" data-k="rp">Plays in range</th><th scope="col" class="sp-num" data-k="rh">Hours in range</th><th scope="col" class="sp-hide-narrow" data-k="genre" data-field="genre">Genre</th><th scope="col" class="sp-num sp-hide-narrow" data-k="tracks" data-field="tracks">Songs</th><th scope="col" class="sp-num sp-hide-narrow" data-k="peak_year" data-field="peak_year">Peak year</th><th scope="col" class="sp-num sp-hide-narrow" data-k="last" data-field="last">Last played</th>
+        </tr></thead><tbody></tbody></table></div>
+      </div>
+      <div class="sp-card sp-wide" id="card-songs">
+        <h2>Songs</h2>
+        <div class="sp-tools"><input type="search" id="q-songs" placeholder="Search songs or artists" aria-label="Search songs"><button class="sp-btn" id="q-songs-clear" type="button" hidden>Clear</button></div>
+        <div class="sp-tablebox"><table class="sp-table" id="t-songs" data-source="tracks" data-row-key="id"><thead><tr>
+          <th scope="col">#</th><th scope="col" data-k="track" data-field="track">Song</th><th scope="col" data-k="artist" data-field="artist">Artist</th><th scope="col" class="sp-num" data-k="rp">Plays in range</th><th scope="col" class="sp-hide-narrow" data-k="genre" data-field="genre">Genre</th><th scope="col" class="sp-num sp-hide-narrow" data-k="plays" data-field="plays">All time</th><th scope="col" class="sp-num sp-hide-narrow" data-k="skip_rate" data-field="skip_rate">Skip rate</th><th scope="col" class="sp-num sp-hide-narrow" data-k="last" data-field="last">Last played</th>
+        </tr></thead><tbody></tbody></table></div>
+      </div>
+      <div class="sp-card sp-wide" id="card-albums">
+        <h2>Albums</h2>
+        <div class="sp-tools"><input type="search" id="q-albums" placeholder="Search albums" aria-label="Search albums"></div>
+        <div class="sp-tablebox"><table class="sp-table" id="t-albums" data-source="albums" data-row-key="id"><thead><tr>
+          <th scope="col">#</th><th scope="col" data-k="album" data-field="album">Album</th><th scope="col" data-k="artist" data-field="artist">Artist</th><th scope="col" class="sp-num" data-k="rp">Plays in range</th><th scope="col" class="sp-num sp-hide-narrow" data-k="plays" data-field="plays">All time</th><th scope="col" class="sp-num sp-hide-narrow" data-k="peak_year" data-field="peak_year">Peak year</th>
+        </tr></thead><tbody></tbody></table></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LIBRARY BUILDER -->
+  <section class="sp-section" id="library" hidden>
+    <div style="display:grid;gap:16px">
+      <div class="sp-card" id="card-libcfg">
+        <h2>Songs that belong in your library</h2>
+        <p class="sp-note">Tune the rules for "a song I love". Counts use the selected years and genre. Skip rate counts starts that ended under 30 seconds or were skipped.</p>
+        <div class="sp-tools">
+          <label for="l-min">At least <input type="number" id="l-min" min="1" max="500" value="10"> plays</label>
+          <label for="l-skip">Skip rate under <input type="number" id="l-skip" min="0" max="100" value="35">%</label>
+          <label for="l-years">Played in <input type="number" id="l-years" min="1" max="16" value="1"> + years</label>
+          <label for="l-stale"><input type="checkbox" id="l-stale"> Only songs not played in 2+ years</label>
+        </div>
+        <div class="sp-kpis">
+          <div class="sp-kpi"><span class="sp-kpi-label">Songs that qualify</span><span class="sp-kpi-val" id="l-count" data-source="tracks">—</span><span class="sp-kpi-sub" id="l-count-sub">—</span></div>
+          <div class="sp-kpi"><span class="sp-kpi-label">Artists covered</span><span class="sp-kpi-val" id="l-artists" data-source="tracks">—</span><span class="sp-kpi-sub">with at least one song</span></div>
+          <div class="sp-kpi"><span class="sp-kpi-label">Forgotten favorites</span><span class="sp-kpi-val" id="l-stale-n" data-source="tracks">—</span><span class="sp-kpi-sub">qualify, not played in 2+ years</span></div>
+        </div>
+        <div class="sp-tools"><button class="sp-btn sp-primary" id="l-copy" type="button">Copy song links</button><span class="sp-note" id="l-copy-msg">Copies the Spotify URIs of every listed song, one per line.</span></div>
+        <textarea class="sp-copybox" id="l-copybox" readonly hidden aria-label="Song links"></textarea>
+      </div>
+      <div class="sp-card" id="card-libtable">
+        <div class="sp-tools"><h2 style="flex:1">Qualifying songs</h2><input type="search" id="q-lib" placeholder="Search" aria-label="Search qualifying songs"></div>
+        <div class="sp-tablebox"><table class="sp-table" id="t-lib" data-source="tracks" data-row-key="id"><thead><tr>
+          <th scope="col">#</th><th scope="col" data-k="track" data-field="track">Song</th><th scope="col" data-k="artist" data-field="artist">Artist</th><th scope="col" class="sp-num" data-k="rp">Plays</th><th scope="col" class="sp-hide-narrow" data-k="genre" data-field="genre">Genre</th><th scope="col" class="sp-num sp-hide-narrow" data-k="skip_rate" data-field="skip_rate">Skip rate</th><th scope="col" class="sp-num sp-hide-narrow" data-k="years_active" data-field="years_active">Years</th><th scope="col" class="sp-num sp-hide-narrow" data-k="last" data-field="last">Last played</th>
+        </tr></thead><tbody></tbody></table></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HABITS -->
+  <section class="sp-section" id="habits" hidden>
+    <div class="sp-grid">
+      <div class="sp-card sp-wide" id="card-clock">
+        <h2>When you listen</h2>
+        <p class="sp-note" id="clock-note">All years, local time. Darker means more hours.</p>
+        <div class="sp-chart" id="ch-clock" data-source="clock summary"></div>
+      </div>
+      <div class="sp-card" id="card-newart">
+        <h2>New artists per year</h2>
+        <p class="sp-note">Artists you played for the first time that year.</p>
+        <div class="sp-chart" id="ch-newart" data-source="yearly"></div>
+      </div>
+      <div class="sp-card" id="card-variety">
+        <h2>Different songs per year</h2>
+        <p class="sp-note">Distinct songs with at least one play.</p>
+        <div class="sp-chart" id="ch-variety" data-source="yearly"></div>
+      </div>
+      <div class="sp-card" id="card-skip">
+        <h2>Skip rate per year</h2>
+        <p class="sp-note">Share of starts that ended under 30 seconds or were skipped.</p>
+        <div class="sp-chart" id="ch-skip" data-source="yearly"></div>
+      </div>
+      <div class="sp-card" id="card-shuffle">
+        <h2>Shuffle share per year</h2>
+        <p class="sp-note">Share of starts with shuffle on.</p>
+        <div class="sp-chart" id="ch-shuffle" data-source="yearly"></div>
+      </div>
+    </div>
+  </section>
+</div>
+</div>
+
+<!--SHIM-->
+<script>
+(function () {
+  const fmt = d3.format(','), pct = d3.format('.0%'), pct1 = d3.format('.1%');
+  const compact = new Intl.NumberFormat('en', { notation: 'compact', maximumFractionDigits: 1 });
+  const GREEN = '#1DB954', MUTED = '#D3D9D5', INK2 = '#535A55', LINE = '#E3E7E4';
+  const $ = (s) => document.querySelector(s);
+  const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+  let YEARS = [];
+  let tab = 'overview';
+
+  // ---------- state: year range ----------
+  const range = () => {
+    const p = dash.params();
+    const a = +(p.start ?? YEARS[0]), b = +(p.end ?? YEARS[YEARS.length - 1]);
+    return a <= b ? [a, b] : [b, a];
+  };
+  const isAll = () => { const [a, b] = range(); return a === YEARS[0] && b === YEARS[YEARS.length - 1]; };
+  const sumYears = (r, prefix, a, b) => { let s = 0; for (let y = a; y <= b; y++) s += +r[prefix + y] || 0; return s; };
+  const rangeLabel = () => { const [a, b] = range(); return a === b ? String(a) : `${a}–${b}`; };
+  const genre = () => dash.params().genre || null;
+  // read params once per pass, not once per row
+  const genreTest = () => { const g = genre(); return (r) => !g || r.genre === g; };
+  const mood = () => dash.params().mood || null;
+  let moodSrc = null, moodMap = new Map();
+  function moodIndex() {
+    const M = dash.data('moods');
+    if (M.status !== 'ok') return moodMap;
+    if (moodSrc !== M.data.length) {
+      moodSrc = M.data.length;
+      moodMap = new Map(M.data.map((r) => [r.id, { ...r, valence: +r.valence, energy: +r.energy, tempo: +r.tempo, acousticness: +r.acousticness, instrumentalness: +r.instrumentalness, danceability: +r.danceability, list: r.moods ? String(r.moods).split('|') : [] }]));
+    }
+    return moodMap;
+  }
+  const moodTest = () => {
+    const m = mood(); if (!m) return () => true;
+    const mi = moodIndex();
+    return (r) => { const f = mi.get(r.id); if (!f) return false; return m === 'No mood tag' ? f.list.length === 0 : f.list.includes(m); };
+  };
+  const scopeLabel = () => [genre(), mood()].filter(Boolean).concat(rangeLabel()).join(', ');
+  const setGenre = (g) => dash.setParams({ genre: g && g !== genre() ? g : null });
+  // per-year rows for the selected genre, shaped like the yearly dataset
+  function yearsFor() {
+    const years = dash.data('yearly').data.map((d) => ({ ...d, year: +d.year }));
+    const g = genre();
+    if (!g || dash.data('genre_years').status !== 'ok') return years;
+    const gy = new Map(dash.data('genre_years').data.filter((r) => r.genre === g).map((r) => [+r.year, r]));
+    const arts = dash.data('artists').data.filter((r) => r.genre === g);
+    return years.map((d) => {
+      const r = gy.get(d.year) || { plays: 0, hours: 0 };
+      const top = d3.greatest(arts, (x) => +x['y' + d.year] || 0);
+      return { year: d.year, hours: +r.hours, plays: +r.plays, top_artist: top && +top['y' + d.year] ? top.artist : '—', share: d.plays ? r.plays / d.plays : 0 };
+    });
+  }
+
+  $('#sp-from').addEventListener('change', (e) => dash.setParams({ start: +e.target.value }));
+  $('#sp-to').addEventListener('change', (e) => dash.setParams({ end: +e.target.value }));
+  $('#sp-reset').addEventListener('click', () => dash.setParams({ start: null, end: null }));
+  $('#sp-genre').addEventListener('change', (e) => dash.setParams({ genre: e.target.value || null }));
+  $('#sp-mood').addEventListener('change', (e) => dash.setParams({ mood: e.target.value || null }));
+
+  // ---------- tabs ----------
+  const showTab = (name) => {
+    tab = name;
+    document.querySelectorAll('.sp-tab').forEach((t) => t.setAttribute('aria-selected', String(t.dataset.tab === name)));
+    document.querySelectorAll('.sp-section').forEach((s) => { s.hidden = s.id !== name; });
+    dash.setLink(name);
+    draw();
+  };
+  document.querySelectorAll('.sp-tab').forEach((t) => t.addEventListener('click', () => showTab(t.dataset.tab)));
+
+  // ---------- tooltip helper ----------
+  const tipFor = (box) => {
+    let t = box.querySelector('.sp-tip');
+    if (!t) { t = el('div', 'sp-tip'); t.hidden = true; box.appendChild(t); }
+    return {
+      show(lines, x, y) {
+        t.replaceChildren(...lines.map((l, i) => { const d = el('div', i === 0 ? 'sp-tip-h' : ''); d.textContent = l; return d; }));
+        t.hidden = false;
+        const w = t.offsetWidth, bw = box.clientWidth;
+        t.style.left = Math.max(0, Math.min(bw - w, x - w / 2)) + 'px';
+        t.style.top = Math.max(0, y - t.offsetHeight - 10) + 'px';
+      },
+      hide() { t.hidden = true; },
+    };
+  };
+  const svgIn = (box, h) => {
+    box.querySelectorAll('svg').forEach((s) => s.remove());
+    const w = Math.max(280, box.clientWidth);
+    const svg = d3.select(box).insert('svg', ':first-child').attr('width', '100%').attr('viewBox', `0 0 ${w} ${h}`).attr('height', h);
+    return { svg, w, h };
+  };
+  const cleanAxis = (g) => { g.attr('font-size', null).attr('font-family', null); g.select('.domain').remove(); g.selectAll('line').attr('stroke', LINE); };
+
+  // ---------- bar chart by year ----------
+  function yearBars(box, rows, key, fmtV, opts = {}) {
+    const { svg, w, h } = svgIn(box, opts.h || 220);
+    const [a, b] = range();
+    const m = { t: 10, r: 8, b: 24, l: 44 };
+    const x = d3.scaleBand(rows.map((d) => d.year), [m.l, w - m.r]).padding(0.25);
+    const y = d3.scaleLinear([0, d3.max(rows, (d) => d[key]) || 1], [h - m.b, m.t]).nice();
+    const every = x.bandwidth() < 22 ? 2 : 1;
+    svg.append('g').attr('transform', `translate(0,${h - m.b})`)
+      .call(d3.axisBottom(x).tickSize(0).tickPadding(8).tickValues(x.domain().filter((d, i) => i % every === 0)).tickFormat((d) => every > 1 ? "'" + String(d).slice(2) : d)).call(cleanAxis);
+    svg.append('g').attr('transform', `translate(${m.l},0)`)
+      .call(d3.axisLeft(y).ticks(4).tickSize(-(w - m.l - m.r)).tickFormat(opts.axisFmt || compact.format)).call(cleanAxis);
+    const tip = tipFor(box);
+    svg.append('g').selectAll('rect').data(rows).join('rect')
+      .attr('x', (d) => x(d.year)).attr('width', x.bandwidth())
+      .attr('y', (d) => y(d[key])).attr('height', (d) => Math.max(0, y(0) - y(d[key])))
+      .attr('rx', Math.min(4, x.bandwidth() / 2))
+      .attr('fill', (d) => (d.year >= a && d.year <= b ? GREEN : MUTED))
+      .style('cursor', opts.click ? 'pointer' : 'default')
+      .on('mousemove', (e, d) => { const [px] = d3.pointer(e, box); tip.show([String(d.year), ...opts.tip(d)], px, y(d[key]) * box.clientWidth / w); })
+      .on('mouseleave', () => tip.hide())
+      .on('click', (e, d) => opts.click && opts.click(d));
+  }
+
+  function yearLine(box, rows, key, fmtV) {
+    const { svg, w, h } = svgIn(box, 200);
+    const m = { t: 12, r: 12, b: 24, l: 44 };
+    const x = d3.scaleLinear(d3.extent(rows, (d) => d.year), [m.l, w - m.r]);
+    const y = d3.scaleLinear([0, Math.max(0.05, d3.max(rows, (d) => d[key]))], [h - m.b, m.t]).nice();
+    svg.append('g').attr('transform', `translate(0,${h - m.b})`).call(d3.axisBottom(x).ticks(Math.min(8, rows.length)).tickFormat(d3.format('d')).tickSize(0).tickPadding(8)).call(cleanAxis);
+    svg.append('g').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(4).tickSize(-(w - m.l - m.r)).tickFormat(pct)).call(cleanAxis);
+    svg.append('path').datum(rows).attr('fill', 'none').attr('stroke', GREEN).attr('stroke-width', 2).attr('stroke-linejoin', 'round').attr('stroke-linecap', 'round')
+      .attr('d', d3.line((d) => x(d.year), (d) => y(d[key])));
+    const dot = svg.append('circle').attr('r', 4).attr('fill', GREEN).attr('stroke', '#fff').attr('stroke-width', 2).style('display', 'none');
+    const tip = tipFor(box);
+    svg.append('rect').attr('x', m.l).attr('y', 0).attr('width', w - m.l - m.r).attr('height', h).attr('fill', 'transparent')
+      .on('mousemove', (e) => {
+        const [px] = d3.pointer(e); const yr = Math.round(x.invert(px)); const d = rows.find((r) => r.year === yr); if (!d) return;
+        dot.style('display', null).attr('cx', x(d.year)).attr('cy', y(d[key]));
+        tip.show([String(d.year), fmtV(d[key])], x(d.year) * box.clientWidth / w, y(d[key]) * box.clientWidth / w);
+      })
+      .on('mouseleave', () => { dot.style('display', 'none'); tip.hide(); });
+  }
+
+  // ---------- tables ----------
+  const tables = {};
+  function setupTable(id, opts) {
+    const t = { id, sortK: 'rp', dir: -1, q: '', ...opts };
+    tables[id] = t;
+    const table = document.getElementById(id);
+    table.querySelectorAll('th[data-k]').forEach((th) => th.addEventListener('click', () => {
+      const k = th.dataset.k;
+      if (t.sortK === k) t.dir = -t.dir; else { t.sortK = k; t.dir = ['artist', 'track', 'album'].includes(k) ? 1 : -1; }
+      draw();
+    }));
+    if (opts.search) document.getElementById(opts.search).addEventListener('input', (e) => { t.q = e.target.value.trim().toLowerCase(); draw(); });
+    return t;
+  }
+  function renderTable(t, rows, cells, limit = 300) {
+    const table = document.getElementById(t.id);
+    table.querySelectorAll('th[data-k]').forEach((th) => th.setAttribute('aria-sort', th.dataset.k === t.sortK ? (t.dir < 0 ? 'descending' : 'ascending') : 'none'));
+    let list = rows;
+    if (t.q) list = list.filter((r) => t.text(r).includes(t.q));
+    const k = t.sortK, dir = t.dir;
+    list = list.slice().sort((p, q) => { const a = p[k], b = q[k]; return (typeof a === 'string' ? a.localeCompare(b) : (a ?? 0) - (b ?? 0)) * dir; });
+    const max = d3.max(list, (r) => r.rp) || 1;
+    const body = table.tBodies[0];
+    body.replaceChildren(...list.slice(0, limit).map((r, i) => {
+      const tr = el('tr');
+      tr.dataset.key = r[t.key];
+      if (t.onRow) { tr.classList.add('sp-click'); tr.addEventListener('click', () => t.onRow(r)); }
+      tr.appendChild(el('td', 'sp-rank', String(i + 1)));
+      cells(r, max).forEach((c) => tr.appendChild(c));
+      return tr;
+    }));
+    return list;
+  }
+  const td = (text, cls) => el('td', cls, text);
+  const barTd = (v, max) => { const c = el('td', 'sp-num'); const w = el('div', 'sp-cellbar'); const i = el('i'); i.style.width = Math.max(2, 60 * v / max) + 'px'; w.append(el('span', '', fmt(v)), i); c.appendChild(w); return c; };
+  const nameTd = (main, sub) => { const c = el('td'); c.appendChild(el('div', '', main)); if (sub) c.appendChild(el('div', 'sp-sub', sub)); return c; };
+
+  setupTable('t-artists', { key: 'artist', search: 'q-artists', text: (r) => r.artist.toLowerCase(),
+    onRow: (r) => { const q = $('#q-songs'); q.value = r.artist; tables['t-songs'].q = r.artist.toLowerCase(); $('#q-songs-clear').hidden = false; draw(); document.getElementById('card-songs').scrollIntoView({ behavior: 'smooth', block: 'start' }); } });
+  setupTable('t-songs', { key: 'id', search: 'q-songs', text: (r) => (r.track + ' ' + r.artist).toLowerCase() });
+  setupTable('t-albums', { key: 'id', search: 'q-albums', text: (r) => (r.album + ' ' + r.artist).toLowerCase() });
+  setupTable('t-moods', { key: 'id', search: 'q-moods', text: (r) => (r.track + ' ' + r.artist + ' ' + (r.moodsTxt || '')).toLowerCase() });
+  setupTable('t-lib', { key: 'id', search: 'q-lib', text: (r) => (r.track + ' ' + r.artist).toLowerCase() });
+  $('#q-songs').addEventListener('input', () => { $('#q-songs-clear').hidden = !$('#q-songs').value; });
+  $('#q-songs-clear').addEventListener('click', () => { $('#q-songs').value = ''; tables['t-songs'].q = ''; $('#q-songs-clear').hidden = true; draw(); });
+
+  // ---------- library builder ----------
+  let libList = [];
+  ['l-min', 'l-skip', 'l-years', 'l-stale'].forEach((id) => document.getElementById(id).addEventListener('input', () => draw()));
+  $('#l-copy').addEventListener('click', () => {
+    const text = libList.map((r) => r.id).join('\n');
+    const box = $('#l-copybox');
+    const fallback = () => { box.hidden = false; box.value = text; box.focus(); box.select(); $('#l-copy-msg').textContent = 'Select all and copy from the box below.'; };
+    try {
+      navigator.clipboard.writeText(text).then(() => { $('#l-copy-msg').textContent = `Copied ${fmt(libList.length)} song links.`; }, fallback);
+    } catch (e) { fallback(); }
+  });
+
+  // ---------- draw ----------
+  function ready(ids) { return ids.every((id) => dash.data(id).status === 'ok'); }
+
+  function draw() {
+    const Y = dash.data('yearly');
+    if (Y.status === 'ok' && !YEARS.length) YEARS = Y.data.map((d) => +d.year);
+    if (YEARS.length) {
+      const [a, b] = range();
+      for (const [id, v] of [['#sp-from', a], ['#sp-to', b]]) {
+        const s = $(id);
+        if (s.options.length !== YEARS.length) s.replaceChildren(...YEARS.map((y) => new Option(String(y), String(y))));
+        s.value = String(v);
+      }
+      $('#sp-reset').hidden = isAll();
+    }
+    const G = dash.data('genre_years');
+    if (G.status === 'ok') {
+      const sel = $('#sp-genre');
+      if (sel.options.length <= 1) {
+        const tot = d3.rollups(G.data, (v) => d3.sum(v, (r) => r.plays), (r) => r.genre).sort((p, q) => q[1] - p[1]);
+        sel.replaceChildren(new Option('All genres', ''), ...tot.map(([g]) => new Option(g, g)));
+      }
+      sel.value = genre() || '';
+    }
+    if (dash.data('moods').status === 'ok') {
+      const ms = $('#sp-mood');
+      if (ms.options.length <= 1) {
+        const c = new Map();
+        moodIndex().forEach((f) => f.list.forEach((m) => c.set(m, (c.get(m) || 0) + 1)));
+        ms.replaceChildren(new Option('All moods', ''), ...[...c].sort((p, q) => q[1] - p[1]).map(([m]) => new Option(m, m)), new Option('No mood tag', 'No mood tag'));
+      }
+      ms.value = mood() || '';
+    }
+    if (tab === 'overview') drawOverview();
+    if (tab === 'top') drawTop();
+    if (tab === 'genres') drawGenres();
+    if (tab === 'moods') drawMoods();
+    if (tab === 'library') drawLibrary();
+    if (tab === 'habits') drawHabits();
+    drawHeader();
+  }
+
+  let artistCache = null, trackCache = null;
+  function rangedArtists() {
+    const [a, b] = range(); const src = dash.data('artists').data;
+    const key = a + '-' + b + '-' + genre();
+    if (artistCache && artistCache.key === key && artistCache.src === src.length) return artistCache.rows;
+    const rows = src.filter(genreTest()).map((r) => ({ ...r, rp: sumYears(r, 'y', a, b), rh: Math.round(sumYears(r, 'm', a, b) / 6) / 10 })).filter((r) => r.rp > 0);
+    artistCache = { key, src: src.length, rows };
+    return rows;
+  }
+  function rangedTracks() {
+    const [a, b] = range(); const src = dash.data('tracks').data;
+    const key = a + '-' + b + '-' + genre() + '-' + mood() + '-' + (dash.data('moods').status === 'ok');
+    if (trackCache && trackCache.key === key && trackCache.src === src.length) return trackCache.rows;
+    const mi = moodIndex();
+    const gt = genreTest(), mt = moodTest();
+    const rows = src.filter((r) => gt(r) && mt(r)).map((r) => {
+      const f = mi.get(r.id);
+      return { ...r, rp: sumYears(r, 'y', a, b), ...(f ? { energy: f.energy, valence: f.valence, danceability: f.danceability, tempo: f.tempo, acousticness: f.acousticness, instrumentalness: f.instrumentalness, source: f.source, moodList: f.list, moodsTxt: f.list.join(', ') } : {}) };
+    }).filter((r) => r.rp > 0);
+    trackCache = { key, src: src.length, rows };
+    return rows;
+  }
+
+  function drawHeader() {
+    const S = dash.data('summary');
+    if (S.status === 'ok' && S.data[0]) {
+      const s = S.data[0];
+      $('#sp-title').textContent = `${window.SPOTIFY_OWNER || 'Your'} Spotify, ${s.first_played.slice(0, 4)}–${s.last_played.slice(0, 4)}`;
+    }
+    if (!ready(['yearly', 'artists', 'tracks', 'genre_years'])) return;
+    const [a, b] = range();
+    const yr = yearsFor().filter((d) => d.year >= a && d.year <= b);
+    const hours = d3.sum(yr, (d) => d.hours);
+    const topA = d3.greatest(rangedArtists(), (r) => r.rp);
+    const topT = d3.greatest(rangedTracks(), (r) => r.rp);
+    $('#sp-take').textContent = `${fmt(Math.round(hours))} hours of ${genre() ? genre() : 'music'} in ${rangeLabel()}. ${topA ? topA.artist + ' is your most-played artist' : ''}${topT ? ` and “${topT.track}” your most-played song.` : '.'}`;
+  }
+
+  function drawOverview() {
+    if (!ready(['yearly', 'monthly', 'artists', 'tracks', 'genre_years', 'genre_months'])) return;
+    const [a, b] = range();
+    const years = yearsFor();
+    const yr = years.filter((d) => d.year >= a && d.year <= b);
+    const hours = d3.sum(yr, (d) => d.hours), plays = d3.sum(yr, (d) => d.plays);
+    $('#k-hours').textContent = fmt(Math.round(hours));
+    $('#k-hours-sub').textContent = `${fmt(Math.round(hours / 24))} days`;
+    $('#k-plays').textContent = compact.format(plays);
+    const arts = rangedArtists(), trs = rangedTracks();
+    const topA = d3.greatest(arts, (r) => r.rp), topT = d3.greatest(trs, (r) => r.rp);
+    $('#k-artist').textContent = topA ? topA.artist : '—';
+    $('#k-artist-sub').textContent = topA ? `${fmt(topA.rp)} plays` : '';
+    $('#k-song').textContent = topT ? topT.track : '—';
+    $('#k-song-sub').textContent = topT ? `${topT.artist} · ${fmt(topT.rp)} plays` : '';
+    const pk = d3.greatest(yr, (d) => d.hours);
+    $('#k-peak').textContent = pk ? pk.year : '—';
+    $('#k-peak-sub').textContent = pk ? `${fmt(Math.round(pk.hours))} hours` : '';
+
+    yearBars($('#ch-years'), years, 'hours', fmt, {
+      tip: (d) => [`${fmt(Math.round(d.hours))} hours`, `${fmt(d.plays)} plays`, `Top artist: ${d.top_artist}`],
+      click: (d) => dash.setParams({ start: d.year, end: d.year }),
+    });
+
+    // monthly area
+    const box = $('#ch-months');
+    const months = (genre() ? dash.data('genre_months').data.filter((r) => r.genre === genre()) : dash.data('monthly').data).map((d) => ({ date: new Date(d.month + '-01T00:00:00Z'), hours: +d.hours, plays: +d.plays }))
+      .filter((d) => d.date.getUTCFullYear() >= a && d.date.getUTCFullYear() <= b);
+    $('#months-note').textContent = months.length ? `${scopeLabel()}. Busiest month: ${d3.utcFormat('%B %Y')(d3.greatest(months, (d) => d.hours).date)}.` : 'No listening in this range.';
+    const { svg, w, h } = svgIn(box, 220);
+    if (months.length > 1) {
+      const m = { t: 10, r: 12, b: 24, l: 44 };
+      const x = d3.scaleUtc(d3.extent(months, (d) => d.date), [m.l, w - m.r]);
+      const y = d3.scaleLinear([0, d3.max(months, (d) => d.hours)], [h - m.b, m.t]).nice();
+      svg.append('g').attr('transform', `translate(0,${h - m.b})`).call(d3.axisBottom(x).ticks(Math.min(8, Math.floor(w / 90))).tickSize(0).tickPadding(8)).call(cleanAxis);
+      svg.append('g').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(4).tickSize(-(w - m.l - m.r))).call(cleanAxis);
+      const gid = 'sp-grad-m';
+      const grad = svg.append('defs').append('linearGradient').attr('id', gid).attr('x1', 0).attr('x2', 0).attr('y1', 0).attr('y2', 1);
+      [[0, .26], [.25, .16], [.5, .08], [.75, .03], [1, 0]].forEach(([o, op]) => grad.append('stop').attr('offset', o).attr('stop-color', GREEN).attr('stop-opacity', op));
+      svg.append('path').datum(months).attr('fill', `url(#${gid})`).attr('d', d3.area((d) => x(d.date), y(0), (d) => y(d.hours)));
+      svg.append('path').datum(months).attr('fill', 'none').attr('stroke', GREEN).attr('stroke-width', 2).attr('stroke-linejoin', 'round').attr('stroke-linecap', 'round').attr('d', d3.line((d) => x(d.date), (d) => y(d.hours)));
+      const dot = svg.append('circle').attr('r', 4).attr('fill', GREEN).attr('stroke', '#fff').attr('stroke-width', 2).style('display', 'none');
+      const tip = tipFor(box); const bis = d3.bisector((d) => d.date).center;
+      svg.append('rect').attr('x', m.l).attr('width', w - m.l - m.r).attr('height', h).attr('fill', 'transparent')
+        .on('mousemove', (e) => { const [px] = d3.pointer(e); const d = months[bis(months, x.invert(px))]; dot.style('display', null).attr('cx', x(d.date)).attr('cy', y(d.hours)); const k = box.clientWidth / w; tip.show([d3.utcFormat('%B %Y')(d.date), `${d3.format(',.1f')(d.hours)} hours`, `${fmt(d.plays)} plays`], x(d.date) * k, y(d.hours) * k); })
+        .on('mouseleave', () => { dot.style('display', 'none'); tip.hide(); });
+    }
+
+    // eras
+    const all = dash.data('artists').data.filter(genreTest());
+    const eras = $('#eras');
+    eras.replaceChildren(...years.filter((d) => d.year >= a && d.year <= b).map((d) => {
+      const top = all.map((r) => ({ artist: r.artist, p: +r['y' + d.year] || 0 })).filter((r) => r.p > 0).sort((p, q) => q.p - p.p).slice(0, 3);
+      const row = el('div', 'sp-era'); row.appendChild(el('span', 'sp-era-y', String(d.year)));
+      const names = el('div', 'sp-era-a');
+      top.forEach((t) => { const s = el('span', '', t.artist); s.appendChild(el('small', '', fmt(t.p))); names.appendChild(s); });
+      row.appendChild(names); return row;
+    }));
+
+    // top 15 artists horizontal bars
+    const tb = $('#ch-topart');
+    const top15 = arts.slice().sort((p, q) => q.rp - p.rp).slice(0, 15);
+    $('#topart-note').textContent = `Plays in ${scopeLabel()}.`;
+    const bw = Math.max(280, tb.clientWidth), bh = 420;
+    const s2 = svgIn(tb, bh).svg;
+    const labelW = Math.min(170, bw * 0.42);
+    const x2 = d3.scaleLinear([0, d3.max(top15, (d) => d.rp) || 1], [labelW + 8, bw - 48]);
+    const y2 = d3.scaleBand(top15.map((d) => d.artist), [0, bh]).padding(0.3);
+    const g = s2.append('g');
+    const tip2 = tipFor(tb);
+    top15.forEach((d) => {
+      const t = g.append('text').attr('x', labelW).attr('y', y2(d.artist) + y2.bandwidth() / 2).attr('dy', '0.35em').attr('text-anchor', 'end').style('fill', '#121212').style('font-family', 'var(--sp-body)').style('font-size', '12px').text(d.artist);
+      let s = d.artist; while (t.node().getComputedTextLength() > labelW - 4 && s.length > 4) { s = s.slice(0, -2); t.text(s + '…'); }
+      g.append('rect').attr('x', x2(0)).attr('y', y2(d.artist)).attr('height', y2.bandwidth()).attr('width', Math.max(2, x2(d.rp) - x2(0))).attr('rx', 4).attr('fill', GREEN)
+        .on('mousemove', (e) => { const [px, py] = d3.pointer(e, tb); tip2.show([d.artist, `${fmt(d.rp)} plays`, `${fmt(d.rh)} hours`], px, py); })
+        .on('mouseleave', () => tip2.hide());
+      g.append('text').attr('x', x2(d.rp) + 6).attr('y', y2(d.artist) + y2.bandwidth() / 2).attr('dy', '0.35em').text(compact.format(d.rp));
+    });
+  }
+
+  function drawGenres() {
+    if (!ready(['yearly', 'genre_years', 'artists', 'tracks'])) return;
+    const [a, b] = range(), g = genre();
+    const gy = dash.data('genre_years').data.map((r) => ({ ...r, year: +r.year, plays: +r.plays, hours: +r.hours }));
+    const inR = gy.filter((r) => r.year >= a && r.year <= b);
+    const tot = d3.rollups(inR, (v) => ({ hours: d3.sum(v, (r) => r.hours), plays: d3.sum(v, (r) => r.plays) }), (r) => r.genre).sort((p, q) => q[1].hours - p[1].hours);
+    const allH = d3.sum(tot, (t) => t[1].hours) || 1, maxH = d3.max(tot, (t) => t[1].hours) || 1;
+    $('#ghours-note').textContent = `${rangeLabel()}. Click a genre to filter everything.`;
+    $('#ghours').replaceChildren(...tot.map(([name, v]) => {
+      const row = el('div', 'sp-hrow' + (name === g ? ' sp-on' : ''));
+      row.dataset.key = name;
+      const bar = el('span'); const i = el('i'); i.style.width = Math.max(1, 100 * v.hours / maxH) + '%'; bar.appendChild(i);
+      row.append(el('span', '', name), bar, el('b', '', `${fmt(Math.round(v.hours))} h · ${pct(v.hours / allH)}`));
+      row.addEventListener('click', () => setGenre(name));
+      return row;
+    }));
+
+    $('#gfocus-title').textContent = g ? g : 'Pick a genre';
+    const arts = rangedArtists().slice().sort((p, q) => q.rp - p.rp).slice(0, 10);
+    const trs = rangedTracks().slice().sort((p, q) => q.rp - p.rp).slice(0, 10);
+    const gTot = g ? tot.find((t) => t[0] === g) : null;
+    $('#gfocus-note').textContent = g ? `${fmt(Math.round(gTot ? gTot[1].hours : 0))} hours and ${fmt(gTot ? gTot[1].plays : 0)} plays in ${rangeLabel()}. ${fmt(rangedTracks().length)} songs with 3+ plays.` : `Showing all genres. Click a genre to narrow these lists.`;
+    const li = (main, sub, n) => { const l = el('li'); const d = el('div'); d.appendChild(el('div', '', main)); if (sub) d.appendChild(el('div', 'sp-sub', sub)); l.append(d, el('b', '', fmt(n))); return l; };
+    $('#g-artists').replaceChildren(...arts.map((r) => li(r.artist, null, r.rp)));
+    $('#g-songs').replaceChildren(...trs.map((r) => li(r.track, r.artist, r.rp)));
+
+    const box = $('#ch-gshare');
+    if (g) {
+      $('#gshare-title').textContent = `${g}: share of your listening per year`;
+      $('#gshare-note').textContent = "Share of each year's plays.";
+      yearLine(box, yearsFor(), 'share', pct1);
+    } else {
+      box.querySelectorAll('svg').forEach((s) => s.remove());
+      $('#gshare-title').textContent = 'Share of your listening per year';
+      $('#gshare-note').textContent = 'Pick a genre to see how its share of your plays changed over time.';
+    }
+
+    const yearsAll = dash.data('yearly').data.map((d) => ({ year: +d.year, plays: +d.plays })).filter((d) => d.year >= a && d.year <= b && d.plays > 0);
+    const share = new Map(gy.map((r) => [r.genre + '|' + r.year, r.plays]));
+    const color = d3.scaleSequential([0, 0.35], d3.interpolateRgb('#F2F7F3', '#0B5D2A')).clamp(true);
+    const thead = el('thead'); const hr = el('tr'); hr.appendChild(el('th'));
+    yearsAll.forEach((y) => hr.appendChild(el('th', '', "'" + String(y.year).slice(2))));
+    thead.appendChild(hr);
+    const tbody = el('tbody');
+    tot.map((t) => t[0]).forEach((name) => {
+      const tr = el('tr', name === g ? 'sp-on' : ''); tr.dataset.key = name;
+      const th = el('th', 'sp-gname', name); th.scope = 'row'; tr.appendChild(th);
+      yearsAll.forEach((y) => {
+        const v = (share.get(name + '|' + y.year) || 0) / y.plays;
+        const c = el('td', '', v >= 0.1 ? String(Math.round(v * 100)) : '');
+        c.style.background = color(v); c.style.color = v > 0.18 ? '#FFFFFF' : '#121212';
+        c.title = `${name}, ${y.year}: ${pct1(v)} of plays`;
+        tr.appendChild(c);
+      });
+      tr.addEventListener('click', () => setGenre(name));
+      tbody.appendChild(tr);
+    });
+    $('#gmix').replaceChildren(thead, tbody);
+  }
+
+  const SRC_LABEL = { reccobeats: 'ReccoBeats', claude_estimate: 'Claude estimate', artist_median: 'Artist average' };
+  function drawMoods() {
+    if (!ready(['moods', 'tracks', 'artists'])) return;
+    const mi = moodIndex(), m = mood();
+    const srcCount = d3.rollups([...mi.values()], (v) => v.length, (r) => r.source).sort((p, q) => q[1] - p[1]);
+    $('#mood-src').textContent = `Mood data covers ${fmt(mi.size)} loved songs (10+ plays). Audio features come from ${srcCount.map(([k, n]) => `${SRC_LABEL[k] || k} (${fmt(n)})`).join(', ')}. Moods are multi-label, so a song can count toward several. The mood filter applies to song lists only.`;
+
+    // songs in scope ignoring the mood filter, for counts and the "all loved" baseline
+    const [a, b] = range();
+    const gt = genreTest();
+    const base = dash.data('tracks').data.filter((r) => gt(r) && mi.has(r.id)).map((r) => ({ r, f: mi.get(r.id), rp: sumYears(r, 'y', a, b) })).filter((d) => d.rp > 0);
+    const counts = new Map(); let none = 0;
+    base.forEach((d) => { if (!d.f.list.length) none++; d.f.list.forEach((x) => counts.set(x, (counts.get(x) || 0) + 1)); });
+    const rows = [...counts].sort((p, q) => q[1] - p[1]).concat([['No mood tag', none]]);
+    const maxC = d3.max(rows, (d) => d[1]) || 1;
+    $('#mcount-note').textContent = `${fmt(base.length)} loved songs in ${[genre(), rangeLabel()].filter(Boolean).join(', ')}. Click a mood to filter.`;
+    $('#mcount').replaceChildren(...rows.map(([name, n]) => {
+      const row = el('div', 'sp-hrow' + (name === m ? ' sp-on' : ''));
+      const bar = el('span'); const i = el('i'); i.style.width = Math.max(1, 100 * n / maxC) + '%'; bar.appendChild(i);
+      row.append(el('span', '', name), bar, el('b', '', `${fmt(n)} · ${pct(n / (base.length || 1))}`));
+      row.addEventListener('click', () => dash.setParams({ mood: name === m ? null : name }));
+      return row;
+    }));
+
+    // mood x genre grid (ignores the genre and mood filters so every cell is comparable)
+    const allIn = dash.data('tracks').data.filter((r) => mi.has(r.id) && sumYears(r, 'y', a, b) > 0);
+    const byG = d3.group(allIn, (r) => r.genre);
+    const moodsOrder = rows.map((d) => d[0]).filter((x) => x !== 'No mood tag');
+    const gOrder = [...byG].sort((p, q) => q[1].length - p[1].length).map((d) => d[0]);
+    const gcol = d3.scaleSequential([0, 0.6], d3.interpolateRgb('#F2F7F3', '#0B5D2A')).clamp(true);
+    const mh = el('thead'); const mhr = el('tr'); mhr.appendChild(el('th', '', 'Songs'));
+    moodsOrder.forEach((x) => mhr.appendChild(el('th', '', x))); mh.appendChild(mhr);
+    const mb = el('tbody');
+    gOrder.forEach((gn) => {
+      const list = byG.get(gn);
+      const tr = el('tr', gn === genre() ? 'sp-on' : '');
+      const th = el('th', 'sp-gname', `${gn} (${fmt(list.length)})`); th.scope = 'row'; tr.appendChild(th);
+      th.addEventListener('click', () => setGenre(gn));
+      moodsOrder.forEach((x) => {
+        const n = list.filter((r) => mi.get(r.id).list.includes(x)).length, v = n / list.length;
+        const c = el('td', '', v >= 0.05 ? String(Math.round(v * 100)) : '');
+        c.style.background = gcol(v); c.style.color = v > 0.3 ? '#FFFFFF' : '#121212'; c.style.width = '56px';
+        if (gn === genre() && x === m) c.style.outline = '2px solid #121212';
+        c.title = `${gn}, ${x}: ${fmt(n)} songs (${pct(v)})`;
+        c.addEventListener('click', () => dash.setParams({ genre: gn, mood: x }));
+        tr.appendChild(c);
+      });
+      mb.appendChild(tr);
+    });
+    $('#mgrid').replaceChildren(mh, mb);
+
+    // scatter: only useful with a mood picked
+    const sel = rangedTracks().filter((r) => r.energy != null);
+    const selIds = new Set(sel.map((r) => r.id));
+    const box = $('#ch-scatter');
+    if (!m) {
+      box.querySelectorAll('svg').forEach((x) => x.remove());
+      box.style.minHeight = '0';
+      $('#scatter-note').textContent = 'Pick a mood to see where its songs sit on energy and happiness compared with the rest of your loved songs.';
+    } else {
+    box.style.minHeight = '340px';
+    const { svg, w, h } = svgIn(box, 340);
+    const mg = { t: 10, r: 10, b: 30, l: 40 };
+    const x = d3.scaleLinear([0, 1], [mg.l, w - mg.r]), y = d3.scaleLinear([0, 1], [h - mg.b, mg.t]);
+    svg.append('g').attr('transform', `translate(0,${h - mg.b})`).call(d3.axisBottom(x).ticks(5).tickSize(-(h - mg.t - mg.b)).tickFormat(d3.format('.1f'))).call(cleanAxis);
+    svg.append('g').attr('transform', `translate(${mg.l},0)`).call(d3.axisLeft(y).ticks(5).tickSize(-(w - mg.l - mg.r)).tickFormat(d3.format('.1f'))).call(cleanAxis);
+    svg.append('text').attr('x', w - mg.r).attr('y', h - 2).attr('text-anchor', 'end').text('Happier →');
+    svg.append('text').attr('x', mg.l + 4).attr('y', mg.t + 10).text('↑ More energy');
+    const rMax = d3.max(base, (d) => d.rp) || 1;
+    const rs = d3.scaleSqrt([0, rMax], [1.5, 9]);
+    const pts = base.map((d) => ({ ...d, on: selIds.has(d.r.id) })).sort((p, q) => (p.on - q.on) || (q.rp - p.rp));
+    const filtered = !!m;
+    svg.append('g').selectAll('circle').data(pts).join('circle')
+      .attr('cx', (d) => x(d.f.valence)).attr('cy', (d) => y(d.f.energy)).attr('r', (d) => rs(d.rp))
+      .attr('fill', (d) => (d.on ? GREEN : MUTED)).attr('fill-opacity', (d) => (d.on ? (filtered ? 0.75 : 0.45) : 0.5))
+      .attr('stroke', '#FFFFFF').attr('stroke-width', 0.5);
+    const ring = svg.append('circle').attr('fill', 'none').attr('stroke', '#121212').attr('stroke-width', 1.5).style('display', 'none');
+    const del = d3.Delaunay.from(pts, (d) => x(d.f.valence), (d) => y(d.f.energy));
+    const tip = tipFor(box);
+    svg.append('rect').attr('x', mg.l).attr('y', mg.t).attr('width', w - mg.l - mg.r).attr('height', h - mg.t - mg.b).attr('fill', 'transparent')
+      .on('mousemove', (e) => {
+        const [px, py] = d3.pointer(e); const i = del.find(px, py); const d = pts[i]; if (!d) return;
+        const cx = x(d.f.valence), cy = y(d.f.energy);
+        if (Math.hypot(cx - px, cy - py) > 24) { ring.style('display', 'none'); tip.hide(); return; }
+        ring.style('display', null).attr('cx', cx).attr('cy', cy).attr('r', rs(d.rp) + 2);
+        const k = box.clientWidth / w;
+        tip.show([d.r.artist, d.r.track, `${fmt(d.rp)} plays · ${d.f.list.join(', ') || 'no mood tag'}`, `Energy ${d3.format('.2f')(d.f.energy)} · Valence ${d3.format('.2f')(d.f.valence)}`], cx * k, cy * k);
+      })
+      .on('mouseleave', () => { ring.style('display', 'none'); tip.hide(); });
+    $('#scatter-note').textContent = `${fmt(sel.length)} ${m} songs in green, out of ${fmt(base.length)}. Sized by plays. Right is happier (valence), up is more energetic.`;
+    }
+
+    // histograms: selection vs all loved songs in scope, as shares
+    $('#hist-sel').textContent = m ? `${m} songs` : 'Songs in your filters';
+    const feats = [['energy', 'Energy', [0, 1]], ['valence', 'Valence (happiness)', [0, 1]], ['danceability', 'Danceability', [0, 1]], ['acousticness', 'Acousticness', [0, 1]], ['instrumentalness', 'Instrumentalness', [0, 1]], ['tempo', 'Tempo (BPM)', [50, 200]]];
+    const hb = $('#hists');
+    if (hb.children.length !== feats.length) hb.replaceChildren(...feats.map(([k]) => { const d = el('div', 'sp-hist sp-chart'); d.dataset.k = k; d.style.minHeight = '140px'; return d; }));
+    feats.forEach(([k, label, dom]) => {
+      const cell = hb.querySelector(`[data-k="${k}"]`);
+      cell.querySelectorAll('p').forEach((p) => p.remove());
+      const med = d3.median(sel, (r) => r[k]);
+      const p = el('p', '', label + ' · median '); p.appendChild(el('b', '', med == null ? '—' : (k === 'tempo' ? Math.round(med) : d3.format('.2f')(med)))); cell.prepend(p);
+      const binner = d3.bin().domain(dom).thresholds(d3.range(dom[0], dom[1], (dom[1] - dom[0]) / 20));
+      const allB = binner(base.map((d) => Math.max(dom[0], Math.min(dom[1] - 1e-9, d.f[k]))));
+      const selB = binner(sel.map((r) => Math.max(dom[0], Math.min(dom[1] - 1e-9, r[k]))));
+      const nA = base.length || 1, nS = sel.length || 1;
+      const { svg: hs, w: hw, h: hh } = svgIn(cell, 110);
+      const hx = d3.scaleLinear(dom, [4, hw - 4]);
+      const hy = d3.scaleLinear([0, Math.max(d3.max(allB, (d) => d.length / nA), d3.max(selB, (d) => d.length / nS)) || 1], [hh - 18, 4]);
+      hs.append('g').attr('transform', `translate(0,${hh - 18})`).call(d3.axisBottom(hx).ticks(4).tickSize(0).tickPadding(6).tickFormat(k === 'tempo' ? d3.format('d') : d3.format('.1f'))).call(cleanAxis);
+      hs.append('g').selectAll('rect').data(allB).join('rect').attr('x', (d) => hx(d.x0) + 1).attr('width', (d) => Math.max(0, hx(d.x1) - hx(d.x0) - 2)).attr('y', (d) => hy(d.length / nA)).attr('height', (d) => hy(0) - hy(d.length / nA)).attr('rx', 2).attr('fill', MUTED);
+      hs.append('g').selectAll('rect').data(selB).join('rect').attr('x', (d) => hx(d.x0) + 3).attr('width', (d) => Math.max(0, hx(d.x1) - hx(d.x0) - 6)).attr('y', (d) => hy(d.length / nS)).attr('height', (d) => hy(0) - hy(d.length / nS)).attr('rx', 2).attr('fill', GREEN);
+    });
+
+    // table
+    $('#msongs-title').textContent = `${m || 'All moods'}: ${fmt(sel.length)} songs`;
+    const tagTd = (list) => { const c = el('td'); (list || []).forEach((t) => c.appendChild(el('span', 'sp-tag', t))); return c; };
+    const f2 = d3.format('.2f');
+    renderTable(tables['t-moods'], sel, (r, max) => [nameTd(r.track, r.album), td(r.artist), barTd(r.rp, max), tagTd(r.moodList), td(f2(r.energy), 'sp-num sp-hide-narrow'), td(f2(r.valence), 'sp-num sp-hide-narrow'), td(f2(r.danceability), 'sp-num sp-hide-narrow'), td(String(Math.round(r.tempo)), 'sp-num sp-hide-narrow'), td(SRC_LABEL[r.source] || r.source, 'sp-hide-narrow')], 500);
+  }
+
+  function drawTop() {
+    if (!ready(['artists', 'tracks', 'albums'])) return;
+    renderTable(tables['t-artists'], rangedArtists(), (r, max) => [nameTd(r.artist), barTd(r.rp, max), td(fmt(r.rh), 'sp-num'), td(r.genre, 'sp-hide-narrow'), td(fmt(r.tracks), 'sp-num sp-hide-narrow'), td(String(r.peak_year), 'sp-num sp-hide-narrow'), td(r.last, 'sp-num sp-hide-narrow')]);
+    renderTable(tables['t-songs'], rangedTracks(), (r, max) => [nameTd(r.track, r.album), td(r.artist), barTd(r.rp, max), td(r.genre, 'sp-hide-narrow'), td(fmt(r.plays), 'sp-num sp-hide-narrow'), td(pct(r.skip_rate), 'sp-num sp-hide-narrow'), td(r.last, 'sp-num sp-hide-narrow')]);
+    const [a, b] = range();
+    const albums = dash.data('albums').data.filter(genreTest()).map((r) => ({ ...r, rp: sumYears(r, 'y', a, b) })).filter((r) => r.rp > 0);
+    renderTable(tables['t-albums'], albums, (r, max) => [nameTd(r.album), td(r.artist), barTd(r.rp, max), td(fmt(r.plays), 'sp-num sp-hide-narrow'), td(String(r.peak_year), 'sp-num sp-hide-narrow')]);
+  }
+
+  function drawLibrary() {
+    if (!ready(['tracks'])) return;
+    const minP = Math.max(1, +$('#l-min').value || 1), maxS = (+$('#l-skip').value || 0) / 100, minY = Math.max(1, +$('#l-years').value || 1);
+    const staleOnly = $('#l-stale').checked;
+    const cutoff = new Date(); cutoff.setUTCFullYear(cutoff.getUTCFullYear() - 2);
+    const cut = cutoff.toISOString().slice(0, 10);
+    const q = rangedTracks().filter((r) => r.rp >= minP && r.skip_rate <= maxS && r.years_active >= minY);
+    const stale = q.filter((r) => r.last < cut);
+    libList = staleOnly ? stale : q;
+    $('#l-count').textContent = fmt(libList.length);
+    $('#l-count-sub').textContent = `of ${fmt(rangedTracks().length)} songs with 3+ plays`;
+    $('#l-artists').textContent = fmt(new Set(libList.map((r) => r.artist)).size);
+    $('#l-stale-n').textContent = fmt(stale.length);
+    $('#l-copy').textContent = `Copy ${fmt(libList.length)} song links`;
+    renderTable(tables['t-lib'], libList, (r, max) => [nameTd(r.track, r.album), td(r.artist), barTd(r.rp, max), td(r.genre, 'sp-hide-narrow'), td(pct(r.skip_rate), 'sp-num sp-hide-narrow'), td(String(r.years_active), 'sp-num sp-hide-narrow'), td(r.last, 'sp-num sp-hide-narrow')], 500);
+  }
+
+  function drawHabits() {
+    if (!ready(['yearly', 'clock'])) return;
+    const years = dash.data('yearly').data.map((d) => ({ ...d, year: +d.year }));
+    const S = dash.data('summary');
+    if (S.status === 'ok' && S.data[0]) $('#clock-note').textContent = `All years, ${S.data[0].timezone.replace('_', ' ')} time. Darker means more hours.`;
+    // heatmap
+    const box = $('#ch-clock');
+    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const rows = dash.data('clock').data;
+    const { svg, w } = svgIn(box, 230);
+    const m = { t: 6, r: 4, b: 22, l: 36 };
+    const x = d3.scaleBand(d3.range(24), [m.l, w - m.r]).paddingInner(0.08);
+    const y = d3.scaleBand(days, [m.t, 230 - m.b]).paddingInner(0.08);
+    const color = d3.scaleSequential([0, d3.max(rows, (d) => d.hours)], d3.interpolateRgb('#EEF8F1', '#0B5D2A'));
+    const tip = tipFor(box);
+    svg.append('g').selectAll('rect').data(rows).join('rect')
+      .attr('x', (d) => x(+d.hour)).attr('y', (d) => y(d.day)).attr('width', x.bandwidth()).attr('height', y.bandwidth()).attr('rx', 3)
+      .attr('fill', (d) => color(d.hours))
+      .on('mousemove', (e, d) => { const k = box.clientWidth / w; tip.show([`${d.day} ${d3.format('02')(d.hour)}:00`, `${fmt(Math.round(d.hours))} hours`], (x(+d.hour) + x.bandwidth() / 2) * k, y(d.day) * k); })
+      .on('mouseleave', () => tip.hide());
+    const step = x.bandwidth() < 22 ? 3 : 2;
+    svg.append('g').selectAll('text').data(d3.range(0, 24, step)).join('text').attr('x', (d) => x(d) + x.bandwidth() / 2).attr('y', 230 - 6).attr('text-anchor', 'middle').text((d) => d === 0 ? '12a' : d === 12 ? '12p' : d < 12 ? d + 'a' : (d - 12) + 'p');
+    svg.append('g').selectAll('text').data(days).join('text').attr('x', 0).attr('y', (d) => y(d) + y.bandwidth() / 2).attr('dy', '0.35em').text((d) => d);
+
+    yearBars($('#ch-newart'), years, 'new_artists', fmt, { h: 200, tip: (d) => [`${fmt(d.new_artists)} new artists`] });
+    yearBars($('#ch-variety'), years, 'unique_tracks', fmt, { h: 200, tip: (d) => [`${fmt(d.unique_tracks)} songs`, `${fmt(d.unique_artists)} artists`] });
+    yearLine($('#ch-skip'), years, 'skip_rate', pct1);
+    yearLine($('#ch-shuffle'), years, 'shuffle_share', pct1);
+  }
+
+  dash.onData(draw);
+  const named = location.hash.slice(1);
+  if (['overview', 'genres', 'moods', 'top', 'library', 'habits'].includes(named)) showTab(named); else showTab('overview');
+})();
+</script>
