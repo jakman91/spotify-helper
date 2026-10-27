@@ -19,11 +19,11 @@ This walks someone through four stages, usually across a few sessions:
 Every command runs on the person's own Mac. ReccoBeats (moods) and the Spotify login both need their machine and browser. There are two ways to get there, and the skills work the same in both:
 
 - Claude Code on the Mac, with the plugin installed. Commands run directly.
-- A project in the Claude desktop app, with the unzipped plugin at `~/spotify-helper/plugin/` and the `~/spotify-helper` folder added to the project. Claude reads these skills from `plugin/skills/` and runs each command on the Mac through a session on their computer (approve the prompt to connect it). Never run the scripts in a cloud container: they would sign in to nothing and can't reach ReccoBeats.
+- A project in the Claude desktop app, with the plugin zip uploaded through the app's Plugins menu. Claude runs each command on the Mac through a session on their computer (they approve the prompt to connect it). Never run the scripts in a cloud container: the Spotify login can't reach their browser and ReccoBeats isn't reachable.
 
 ## Paths
 
-- Scripts: the `scripts/` folder of this plugin, two levels up from this skill's base directory. Use `S="<this skill's base directory>/../../scripts"` in commands. In the project setup that is `S=~/spotify-helper/plugin/scripts`.
+- Scripts: the `scripts/` folder of this plugin, two levels up from this skill's base directory. Use `S="<this skill's base directory>/../../scripts"` in commands. Commands need the scripts on the Mac itself: if that path isn't on the Mac where commands run (for example, the plugin lives in the Claude app while commands run on their computer), first copy this plugin's `scripts/` folder, including `scripts/dashboard/`, to `~/spotify-helper/scripts/` on the Mac and use `S=~/spotify-helper/scripts`.
 - Workspace: `~/spotify-helper/` (export, data, outputs). Private settings and login tokens: `~/.spotify-helper/`.
 
 ## Each time this skill runs
