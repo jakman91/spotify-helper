@@ -22,14 +22,12 @@ You don't need to know any code or use Terminal. Claude runs the scripts and ask
 
 ## Set it up (pick one)
 
-### Option A: a project in the Claude desktop app (no Terminal)
+### Option A: the Claude desktop app (no Terminal)
 
-1. Download `spotify-helper.zip` (from whoever shared it, or Code > Download ZIP on this GitHub page) and unzip it.
-2. Make a folder called `spotify-helper` in your home folder, and move the unzipped folder into it, renamed to `plugin`. You should end up with `~/spotify-helper/plugin/skills/`.
-3. In the Claude desktop app, create a project (for example "Spotify") and add your `~/spotify-helper` folder to it.
-4. Paste this into the project instructions:
-   > Use the spotify-helper skills in plugin/skills/ in my spotify-helper folder, starting with plugin/skills/spotify-start/SKILL.md. Run every command on my Mac, never in the cloud.
-5. Start a chat in the project and say "let's start the Spotify helper". Approve when Claude asks to connect to your computer.
+1. Get `spotify-helper.zip` (from whoever shared it, or Code > Download ZIP on this GitHub page). No need to unzip it.
+2. In the Claude app, open the Plugins menu and upload the zip. The plugin is ready once it shows up.
+3. Create a project (for example "Spotify").
+4. In the project, run the spotify-start skill, or just say "let's start the Spotify helper". Approve when Claude asks to connect to your computer.
 
 ### Option B: Claude Code
 
