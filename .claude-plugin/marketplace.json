@@ -1,0 +1,11 @@
+{
+  "name": "spotify-helper",
+  "owner": { "name": "Jonathan Koch" },
+  "plugins": [
+    {
+      "name": "spotify-helper",
+      "source": "./",
+      "description": "Spotify listening dashboard, genre and mood tags, Liked Songs cleanup, and playlists from your own history."
+    }
+  ]
+}
