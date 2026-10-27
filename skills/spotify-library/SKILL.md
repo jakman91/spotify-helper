@@ -1,6 +1,6 @@
 ---
 name: spotify-library
-description: Clean up Spotify Liked Songs and build genre and vibe playlists from listening history. Use when someone wants to audit their library, add songs they love but never saved, remove rarely played saved songs, or create playlists like "my top indie rock" or "Sunday morning". Writes to Spotify only after a dry run and their OK.
+description: Clean up Spotify Liked Songs and build genre and vibe playlists from listening history. Use when someone wants to audit their library, add songs they love but never saved, remove rarely played saved songs, or create playlists like "my top indie rock" or "Sunday morning". Writes to Spotify only after a dry run and their OK. Usually reached from spotify-start; if someone is new or unsure where they are, run spotify-start first.
 ---
 
 # Liked Songs and playlists
