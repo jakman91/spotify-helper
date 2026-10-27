@@ -14,11 +14,14 @@ This walks someone through four stages, usually across a few sessions:
 | 3. Genres and moods | spotify-enrich | Dashboard data | No |
 | 4. Liked Songs and playlists | spotify-library | Spotify app + stage 3 | Yes, only after a dry run and their OK |
 
-Everything runs on the person's own Mac. ReccoBeats (moods) and the Spotify login both need a local machine with a browser, so this does not work from a cloud session.
+Every command runs on the person's own Mac. ReccoBeats (moods) and the Spotify login both need their machine and browser. There are two ways to get there, and the skills work the same in both:
+
+- Claude Code on the Mac, with the plugin installed. Commands run directly.
+- A project in the Claude desktop app, with the unzipped plugin at `~/spotify-helper/plugin/` and the `~/spotify-helper` folder added to the project. Claude reads these skills from `plugin/skills/` and runs each command on the Mac through a session on their computer (approve the prompt to connect it). Never run the scripts in a cloud container: they would sign in to nothing and can't reach ReccoBeats.
 
 ## Paths
 
-- Scripts: the `scripts/` folder of this plugin, two levels up from this skill's base directory. Use `S="<this skill's base directory>/../../scripts"` in commands.
+- Scripts: the `scripts/` folder of this plugin, two levels up from this skill's base directory. Use `S="<this skill's base directory>/../../scripts"` in commands. In the project setup that is `S=~/spotify-helper/plugin/scripts`.
 - Workspace: `~/spotify-helper/` (export, data, outputs). Private settings and login tokens: `~/.spotify-helper/`.
 
 ## Each time this skill runs

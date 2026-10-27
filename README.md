@@ -9,25 +9,36 @@ A Claude Code plugin that walks you through turning your full Spotify listening 
 | Genre and mood tags for every song you love | spotify-enrich | No |
 | A Liked Songs cleanup plus genre and vibe playlists | spotify-library | Yes, after a preview and your OK |
 
-You don't need to know any code. Claude runs the scripts and asks you before anything in Spotify changes.
+You don't need to know any code or use Terminal. Claude runs the scripts and asks you before anything in Spotify changes.
 
 ## What you need
 
-- A Mac. Everything runs locally, because the Spotify login and the mood data both need your own machine and browser.
-- Claude Code with a Claude subscription. To install it, open Terminal and run `curl -fsSL https://claude.ai/install.sh | bash`.
+- A Mac. Everything runs on your own computer, because the Spotify login and the mood data both need your machine and browser.
+- A Claude subscription and either the Claude desktop app or Claude Code (see the two options below).
 - Your Spotify "Extended streaming history" export. It takes a few days to arrive, so request it first (step 1 below).
 - For the playlist and Liked Songs part only: a Spotify developer app. You can make your own (needs Premium), or a friend who has one can add you to theirs (up to 5 people).
 
-## Install
+## Set it up (pick one)
 
-In Terminal, run `claude`, then type:
+### Option A: a project in the Claude desktop app (no Terminal)
+
+1. Download `spotify-helper.zip` (from whoever shared it, or Code > Download ZIP on this GitHub page) and unzip it.
+2. Make a folder called `spotify-helper` in your home folder, and move the unzipped folder into it, renamed to `plugin`. You should end up with `~/spotify-helper/plugin/skills/`.
+3. In the Claude desktop app, create a project (for example "Spotify") and add your `~/spotify-helper` folder to it.
+4. Paste this into the project instructions:
+   > Use the spotify-helper skills in plugin/skills/ in my spotify-helper folder, starting with plugin/skills/spotify-start/SKILL.md. Run every command on my Mac, never in the cloud.
+5. Start a chat in the project and say "let's start the Spotify helper". Approve when Claude asks to connect to your computer.
+
+### Option B: Claude Code
+
+Install Claude Code (in Terminal: `curl -fsSL https://claude.ai/install.sh | bash`), run `claude`, then type:
 
 ```
 /plugin marketplace add jakman91/spotify-helper
 /plugin install spotify-helper@spotify-helper
 ```
 
-Restart Claude Code, then say "let's start the Spotify helper".
+Restart Claude Code, then say "let's start the Spotify helper". Using a zip instead of GitHub: unzip it and run `/plugin marketplace add <path to the unzipped folder>`.
 
 ## How it goes
 
