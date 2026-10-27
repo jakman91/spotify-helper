@@ -1,10 +1,12 @@
 # spotify-helper
 
-A Claude Code plugin that walks you through turning your full Spotify listening history into:
+To get started, run one skill: spotify-start. Say "let's start the Spotify helper" and Claude takes it from there. It checks where you are, sets things up, and tells you when to move to each next step, so you never need to pick a skill yourself.
+
+This plugin walks you through turning your full Spotify listening history into:
 
 | What | Skill | Changes your Spotify? |
 |---|---|---|
-| Export request and setup | spotify-start | No |
+| Start here: export request, setup, and what to do next | spotify-start | No |
 | A listening dashboard (one HTML file) | spotify-dashboard | No |
 | Genre and mood tags for every song you love | spotify-enrich | No |
 | A Liked Songs cleanup plus genre and vibe playlists | spotify-library | Yes, after a preview and your OK |
